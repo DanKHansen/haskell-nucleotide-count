@@ -7,8 +7,13 @@ data Nucleotide = A | C | G | T deriving (Eq, Ord, Show)
 
 nucleotideCounts :: String -> Either String (Map Nucleotide Int)
 nucleotideCounts xs
-  | all (`elem` "ACGT") xs = Right $ M.fromListWith (+) [(n, 1) | c <- xs, Just n <- [toN c]]
+  | all (`elem` "ACGT") xs = Right $ foldr countNucleotide M.empty xs
   | otherwise = Left "Error"
+
+countNucleotide :: Char -> Map Nucleotide Int -> Map Nucleotide Int
+countNucleotide c acc = case toN c of
+  Just n -> M.insertWith (+) n 1 acc
+  Nothing -> acc -- This case should not happen due to the earlier check
 
 toN :: Char -> Maybe Nucleotide
 toN 'A' = Just A
